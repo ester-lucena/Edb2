@@ -1,0 +1,7 @@
+teste para saber se funciona
+
+int main(){
+    string teste;
+}
+
+Teste, TESTE, téste, têste
