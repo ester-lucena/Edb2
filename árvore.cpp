@@ -18,8 +18,9 @@ struct Node{
     }
 };
 
+//comparador para ordernar do menor para o maior na fila
 struct Comparador {
-    bool operador(Node &a, Node &b){
+    bool operador()(Node* a, Node* b) const {
         return a.freq > b.freq;
     }
 };
@@ -27,13 +28,37 @@ struct Comparador {
 
 
 int main(){
-    ifstream freq("frequencia.txt");
-    if(!freq){
+    //contador de frequência
+    ifstream arquivo("frequencia.txt");
+    if(!arquivo){
         cout << "Erro ao tentar ler o arquivo!" << endl;
         return 1;
     }
+    
+    //criação da fila
+    priority_queue<Node*, vector<Node*>,Comparador> fila;
 
-    priority_queue<Node, vector<Node>,Comparador> fila;
+    //coloca as informações na fila
+    string c;
+    int freq;
+    while (arquivo >> c >> freq){
+        Node* novo = new Node(c, freq);
+        fila.push(novo);
+    }
 
+    while (fila.size() > 1) {
+        //retira os menores nós
+        Node* left = fila.top(); fila.pop();
+        Node* right = fila.top(); fila.pop();
+        //cria o novo nó
+        int sum = left->freq + right->freq;
+        Node* novo = new Node(" ", sum, left, right);
+        //coloca na fila
+        fila.push(novo);
+    }
+
+    //o último nó é a raíz
+    Node* root = fila.top();
+    
     return 0;
 }
