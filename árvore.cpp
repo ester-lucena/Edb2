@@ -1,30 +1,30 @@
 #include <iostream>
 #include <fstream>
 #include <queue>
+#include <map>
 
 using namespace std;
 
-struct Node{
+struct No{
     string c;
     int freq;
-    Node* right;
-    Node* left;
+    No* direita;
+    No* esquerda;
 
-    Node(string c, int freq){
+    No(string c, int freq){
         this -> c = c;
         this -> freq = freq;
-        right = nullptr;
-        left = nullptr;
+        direita = nullptr;
+        esquerda = nullptr;
     }
 };
 
 //comparador para ordernar do menor para o maior na fila
 struct Comparador {
-    bool operador()(Node* a, Node* b) const {
+    bool operador()(No* a, No* b) const {
         return a.freq > b.freq;
     }
 };
-
 
 
 int main(){
@@ -36,29 +36,30 @@ int main(){
     }
     
     //criação da fila
-    priority_queue<Node*, vector<Node*>,Comparador> fila;
+    priority_queue<No*, vector<No*>,Comparador> fila;
 
     //coloca as informações na fila
     string c;
     int freq;
     while (arquivo >> c >> freq){
-        Node* novo = new Node(c, freq);
+        No* novo = new No(c, freq);
         fila.push(novo);
     }
 
+    //árvore
     while (fila.size() > 1) {
-        //retira os menores nós
-        Node* left = fila.top(); fila.pop();
-        Node* right = fila.top(); fila.pop();
+        //retira os dois menores nós
+        No* esquerda = fila.top(); fila.pop();
+        No* direita = fila.top(); fila.pop();
         //cria o novo nó
-        int sum = left->freq + right->freq;
-        Node* novo = new Node(" ", sum, left, right);
+        int soma = esquerda->freq + direita->freq;
+        No* novo = new No(" ", soma, esquerda, direita);
         //coloca na fila
         fila.push(novo);
     }
 
     //o último nó é a raíz
-    Node* root = fila.top();
+    No* raiz = fila.top();
     
     return 0;
 }
