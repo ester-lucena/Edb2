@@ -21,8 +21,8 @@ struct No{
 
 //comparador para ordernar do menor para o maior na fila
 struct Comparador {
-    bool operador()(No* a, No* b) const {
-        return a.freq > b.freq;
+    bool operator()(No* a, No* b) const {
+        return a->freq > b->freq;
     }
 };
 
@@ -53,7 +53,10 @@ int main(){
         No* direita = fila.top(); fila.pop();
         //cria o novo nó
         int soma = esquerda->freq + direita->freq;
-        No* novo = new No(" ", soma, esquerda, direita);
+        No* novo = new No(" ", soma);
+        // liga os filhos à esquerda e à direita
+        novo->esquerda = esquerda;
+        novo->direita = direita;
         //coloca na fila
         fila.push(novo);
     }
