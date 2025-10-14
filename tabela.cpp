@@ -56,20 +56,19 @@ int main(){
         return 1;
     } 
     
-    saida << "[PALAVRAS]" << endl;
     for(auto &p : freq_palavras){
         saida << p.first << " " << p.second << endl;
     }
-    saida << "[SIMBOLOS]" << endl;
+    
     for(auto &p : freq_simbolos){
         saida << p.first << " " << p.second << endl;
     }
-    saida << "[NUMEROS]" << endl;
+    
     for(auto &p : freq_numeros){
         saida << p.first << " " << p.second << endl;
     }
 
-    cout << "Tabela de frewuencia salva em 'frequencia.txt' com sucesso!" << endl;
+    cout << "Tabela de frequencia salva em 'frequencia.txt' com sucesso!" << endl;
 
     return 0;
 }
