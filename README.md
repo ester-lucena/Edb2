@@ -11,4 +11,5 @@
     Além de projetos que fizemos em lp1, chamados "classes abstratas" e "imobiliária", e do "calculo de expressão pós-fixada" de ebd2.
   
     -> Esses arquivos se encontram na pasta codigo e foram importantes para vermos os símbolos que mais aparecem em códigos c++.
-      obs: a tabela foi salva no arquivo frequencia_huffman.txt, em ordem decrescente e contendo apenas os símbolos cuja frequência é maior que 500.
+  
+    obs: a tabela foi salva no arquivo frequencia_huffman.txt, em ordem decrescente e contendo apenas os símbolos cuja frequência é maior que 500.
