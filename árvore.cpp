@@ -17,6 +17,12 @@ struct No{
         direita = nullptr;
         esquerda = nullptr;
     }
+
+    //destrutor: libera a memória
+    ~No() {
+        delete esquerda;
+        delete direita;
+    }
 };
 
 //comparador para ordernar do menor para o maior na fila
@@ -26,12 +32,12 @@ struct Comparador {
     }
 };
 
-int main(){
-    //contador de frequência
-    ifstream arquivo("frequencia.txt");
+No* construirArvore(const string& nomeArquivo){
+    //leitura da tabela de frequencia
+    ifstream arquivo(nomeArquivo);
     if(!arquivo) {
         cout << "Erro ao tentar ler o arquivo!" << endl;
-        return 1;
+        return nullptr;
     }
     
     //criação da fila
@@ -47,7 +53,7 @@ int main(){
     
     if (fila.empty()) {
         cout << "Erro: a fila está vazia. O arquivo pode estar vazio ou mal formatado." << endl;
-        return 1;
+        return nullptr;
     }
 
     //árvore
@@ -70,9 +76,50 @@ int main(){
         fila.push(novo);
     }
 
-    //o último nó é a raíz
-    No* raiz = fila.top();
+    //retorna a raíz, elemento mais frequente
+    return fila.top();
+}
+
+void gerarCodigos(No* raiz, string codigo, map<string, string>& tabela) {
+    if (!raiz) return;
+
+    // folha = símbolo real
+    if (!raiz -> esquerda && !raiz -> direita && raiz -> c != " ") {
+        tabela[raiz -> c] = codigo;
+        return;
+    }
+
+    gerarCodigos(raiz->esquerda, codigo + "0", tabela);
+    gerarCodigos(raiz->direita, codigo + "1", tabela);
+}
+
+int main(){
+    string nomeArquivo = "frequencia.txt";
+    No* raiz = construirArvore(nomeArquivo);
+    
     cout << "Árvore criada com sucesso! Frequência total: " << raiz -> freq << endl;
     
+    map<string, string> tabelaCodigos;
+    gerarCodigos(raiz, "", tabelaCodigos);
+
+    // cria o arquivo de saída
+    string nomeSaida = "codigos_huffman.txt";
+    ofstream arquivoSaida(nomeSaida);
+    if (!arquivoSaida) {
+        cout << "Erro ao criar o arquivo de saída!" << endl;
+        delete raiz;
+        return 1;
+    }
+
+    // grava todos os códigos no arquivo
+    for (auto& par : tabelaCodigos) {
+        arquivoSaida << par.first << " " << par.second << "\n";
+    }
+
+    arquivoSaida.close();
+    cout << "Códigos de Huffman salvos em: " << nomeSaida << endl;
+
+    delete raiz;
+
     return 0;
 }
