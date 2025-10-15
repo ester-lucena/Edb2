@@ -2,161 +2,147 @@
 #include <fstream>
 #include <unordered_map>
 #include <string>
-#include <cctype>
+#include <locale>
+#include <codecvt>
+#include <cwctype>
 
 using namespace std;
 
-
 //tabela hard-coded de Huffman(baseada na de frequência)
-unordered_map<string, string> codigosHuffman = {
+unordered_map<wstring, wstring> codigosHuffman = {
     //operadores e símbolos mais frequentes
-    {"(", "0000"}, {")", "0001"}, {";", "0010"}, {",", "0011"}, {".", "0100"},
-    {">", "0101"}, {"=", "0110"}, {"<", "0111"}, {"}", "1000"}, {"{", "1001"},
-    {"\"", "1010"}, {"#", "1011"}, {"&", "1100"}, {"-", "1101"}, {"*", "1110"},
-    {"/", "1111"}, {"[", "10000"}, {"]", "10001"}, {":", "10010"}, {"!", "10011"},
-    {"+", "10100"}, {"\\", "10101"}, {"|", "10110"}, {"%", "10111"},
+    {L"(", L"0000"}, {L")", L"0001"}, {L";", L"0010"}, {L",", L"0011"}, {L".", L"0100"},
+    {L">", L"0101"}, {L"=", L"0110"}, {L"<", L"0111"}, {L"}", L"1000"}, {L"{", L"1001"},
+    {L"\"", L"1010"}, {L"#", L"1011"}, {L"&", L"1100"}, {L"-", L"1101"}, {L"*", L"1110"},
+    {L"/", L"1111"}, {L"[", L"10000"}, {L"]", L"10001"}, {L":", L"10010"}, {L"!", L"10011"},
+    {L"+", L"10100"}, {L"\\", L"10101"}, {L"|", L"10110"}, {L"%", L"10111"},
+
+    //espaços, tabs e quebras de linha
+    {L" ", L"1110000"}, {L"\n", L"1110001"}, {L"\t", L"1110010"},
 
     //palavras-chave mais frequentes
-    {"const", "11000"}, {"include", "11001"}, {"return", "11010"}, {"void", "11011"},
-    {"if", "11100"}, {"typename", "11101"}, {"int", "11110"}, {"template", "11111"},
-    {"bool", "100000"}, {"auto", "100001"}, {"sizeof", "100010"}, {"define", "100011"},
-    {"false", "100100"}, {"endif", "100101"}, {"this", "100110"}, {"size_t", "100111"},
-    {"static", "101000"}, {"using", "101001"}, {"true", "101010"}, {"char", "101011"},
-    {"std::string", "101100"}, {"class", "101101"}, {"nullptr", "101110"},
-    {"else", "101111"}, {"struct", "110000"}, {"public", "110001"},
+    {L"const", L"11000"}, {L"include", L"11001"}, {L"return", L"11010"}, {L"void", L"11011"},
+    {L"if", L"11100"}, {L"typename", L"11101"}, {L"int", L"11110"}, {L"template", L"11111"},
+    {L"bool", L"100000"}, {L"auto", L"100001"}, {L"sizeof", L"100010"}, {L"define", L"100011"},
+    {L"false", L"100100"}, {L"endif", L"100101"}, {L"this", L"100110"}, {L"size_t", L"100111"},
+    {L"static", L"101000"}, {L"using", L"101001"}, {L"true", L"101010"}, {L"char", L"101011"},
+    {L"std::string", L"101100"}, {L"class", L"101101"}, {L"nullptr", L"101110"},
+    {L"else", L"101111"}, {L"struct", L"110000"}, {L"public", L"110001"},
 
     //números
-    {"0", "110010"}, {"1", "110011"}, {"2", "110100"}, {"3", "110101"}, {"4", "110110"},
-    {"5", "110111"}, {"6", "111000"}, {"7", "111001"}, {"8", "111010"}, {"9", "111011"},
+    {L"0", L"110010"}, {L"1", L"110011"}, {L"2", L"110100"}, {L"3", L"110101"}, {L"4", L"110110"},
+    {L"5", L"110111"}, {L"6", L"111000"}, {L"7", L"111001"}, {L"8", L"111010"}, {L"9", L"111011"},
 
     //alfabeto
-    {"a", "111100"}, {"b", "111101"}, {"c", "1111100"}, {"d", "1111101"}, {"e", "1111110"},
-    {"f", "1111111"}, {"g", "1000000"}, {"h", "1000001"}, {"i", "1000010"}, {"j", "1000011"},
-    {"k", "1000100"}, {"l", "1000101"}, {"m", "1000110"}, {"n", "1000111"}, {"o", "1001000"},
-    {"p", "1001001"}, {"q", "1001010"}, {"r", "1001011"}, {"s", "1001100"}, {"t", "1001101"},
-    {"u", "1001110"}, {"v", "1001111"}, {"w", "1010000"}, {"x", "1010001"}, {"y", "1010010"},
-    {"z", "1010011"}
+    {L"a", L"111100"}, {L"b", L"111101"}, {L"c", L"1111100"}, {L"d", L"1111101"}, {L"e", L"1111110"},
+    {L"f", L"1111111"}, {L"g", L"1000000"}, {L"h", L"1000001"}, {L"i", L"1000010"}, {L"j", L"1000011"},
+    {L"k", L"1000100"}, {L"l", L"1000101"}, {L"m", L"1000110"}, {L"n", L"1000111"}, {L"o", L"1001000"},
+    {L"p", L"1001001"}, {L"q", L"1001010"}, {L"r", L"1001011"}, {L"s", L"1001100"}, {L"t", L"1001101"},
+    {L"u", L"1001110"}, {L"v", L"1001111"}, {L"w", L"1010000"}, {L"x", L"1010001"}, {L"y", L"1010010"},
+    {L"z", L"1010011"},
+
+    //acentos básicos
+    {L"á", L"1010101"}, {L"é", L"1010110"}, {L"í", L"1010111"}, {L"ó", L"1011000"}, {L"ú", L"1011001"},
+    {L"ã", L"1011010"}, {L"õ", L"1011011"}, {L"ç", L"1011100"}, {L"Á", L"1011101"}, {L"É", L"1011110"},
+    {L"Í", L"1011111"}, {L"Ó", L"10000000"}, {L"Ú", L"10000001"}, {L"Ç", L"10000010"}
 };
 
 //Compressão
-void comprimir(string nomeArquivoEntrada, string nomeArquivoSaida) {
-    ifstream entrada(nomeArquivoEntrada);
-    ofstream saida(nomeArquivoSaida, ios::binary);
+void comprimir(string nomeEntrada, string nomeSaida) {
+    wifstream entrada(nomeEntrada);
+    entrada.imbue(locale(locale(), new codecvt_utf8<wchar_t>()));
+    wofstream saida(nomeSaida);
+    saida.imbue(locale(locale(), new codecvt_utf8<wchar_t>()));
 
     if (!entrada.is_open() || !saida.is_open()) {
         cerr << "Erro ao abrir arquivos.\n";
         return;
     }
 
-    string bits = "";
-    string token = "";
-    char c;
+    wstring token = L"";
+    wchar_t c;
 
     while (entrada.get(c)) {
-        if (isalnum(c) || c == '_') {
-            //faz parte de uma palavra/chave
+        if (iswalnum(c) || c == L'_') {
             token += c;
         } else {
-            //fim do token (palavra)
+            //processa palavra acumulada
             if (!token.empty()) {
-                if (codigosHuffman.count(token)) {
-                    bits += codigosHuffman[token];
-                } else {
-                    //fallback: codifica letra por letra
-                    for (char ch : token) {
-                        string s(1, ch);
+                if (codigosHuffman.count(token))
+                    saida << codigosHuffman[token] << " ";
+                else {
+                    for (wchar_t wc : token) {
+                        wstring s(1, wc);
                         if (codigosHuffman.count(s))
-                            bits += codigosHuffman[s];
+                            saida << codigosHuffman[s] << " ";
                         else
-                            cerr << "Aviso: caractere '" << ch << "' não possui código.\n";
+                            saida << "? ";
                     }
                 }
                 token.clear();
             }
-
-            //codifica o símbolo atual (como ; , { } etc)
-            string s(1, c);
+            //processa símbolo ou espaço/tab/nova linha
+            wstring s(1, c);
             if (codigosHuffman.count(s))
-                bits += codigosHuffman[s];
+                saida << codigosHuffman[s] << " ";
         }
     }
 
-    //processa o último token
+    //processa último token
     if (!token.empty()) {
-        if (codigosHuffman.count(token)) {
-            bits += codigosHuffman[token];
-        } else {
-            for (char ch : token) {
-                string s(1, ch);
+        if (codigosHuffman.count(token))
+            saida << codigosHuffman[token] << " ";
+        else {
+            for (wchar_t wc : token) {
+                wstring s(1, wc);
                 if (codigosHuffman.count(s))
-                    bits += codigosHuffman[s];
+                    saida << codigosHuffman[s] << " ";
+                else
+                    saida << "? ";
             }
         }
     }
 
-    //converte os bits em bytes
-    unsigned char byte = 0;
-    int bitCount = 0;
-    for (char bit : bits) {
-        byte = (byte << 1) | (bit - '0');
-        bitCount++;
-        if (bitCount == 8) {
-            saida.put(byte);
-            byte = 0;
-            bitCount = 0;
-        }
-    }
-    if (bitCount > 0) {
-        byte <<= (8 - bitCount);
-        saida.put(byte);
-    }
-
     entrada.close();
     saida.close();
-    cout << "Arquivo comprimido com sucesso em: " << nomeArquivoSaida << endl;
+    cout << "Arquivo comprimido com sucesso em: " << nomeSaida << endl;
 }
 
 //Descompressão
-void descomprimir(string nomeArquivoEntrada, string nomeArquivoSaida) {
-    ifstream entrada(nomeArquivoEntrada, ios::binary);
-    ofstream saida(nomeArquivoSaida);
+void descomprimir(string nomeEntrada, string nomeSaida) {
+    ifstream entrada(nomeEntrada);
+    wofstream saida(nomeSaida);
+    saida.imbue(locale(locale(), new codecvt_utf8<wchar_t>()));
 
     if (!entrada.is_open() || !saida.is_open()) {
         cerr << "Erro ao abrir arquivos.\n";
         return;
     }
 
-    //cria tabela inversa (código → símbolo)
-    unordered_map<string, string> inverso;
+    //converte tabela para string UTF-8 (inversa)
+    unordered_map<string, wstring> inverso;
+    wstring_convert<codecvt_utf8_utf16<wchar_t>> conversor;
     for (auto &par : codigosHuffman)
-        inverso[par.second] = par.first;
+        inverso[conversor.to_bytes(par.second)] = par.first;
 
-    string bits = "";
-    unsigned char byte;
-    while (entrada.read(reinterpret_cast<char*>(&byte), 1)) {
-        for (int i = 7; i >= 0; i--)
-            bits += ((byte >> i) & 1) ? '1' : '0';
-    }
-
-    string buffer = "";
-    for (char bit : bits) {
-        buffer += bit;
-        if (inverso.count(buffer)) {
-            saida << inverso[buffer];
-            buffer.clear();
-        }
+    string codigo;
+    while (entrada >> codigo) {
+        if (inverso.count(codigo))
+            saida << inverso[codigo];
+        else
+            saida << L"?";
     }
 
     entrada.close();
     saida.close();
-    cout << "Arquivo descomprimido com sucesso em: " << nomeArquivoSaida << endl;
+    cout << "Arquivo descomprimido com sucesso em: " << nomeSaida << endl;
 }
 
 int main(int argc, char* argv[]) {
     if (argc < 4) {
         cout << "Uso:\n";
-        cout << "  programa -c entrada.txt saida.bin   (comprimir)\n";
-        cout << "  programa -d entrada.bin saida.txt   (descomprimir)\n";
+        cout << "  programa -c entrada.txt saida.txt   (comprimir)\n";
+        cout << "  programa -d entrada.txt saida.txt   (descomprimir)\n";
         return 1;
     }
 
@@ -164,13 +150,12 @@ int main(int argc, char* argv[]) {
     string entrada = argv[2];
     string saida = argv[3];
 
-    if (opcao == "-c") {
+    if (opcao == "-c")
         comprimir(entrada, saida);
-    } else if (opcao == "-d") {
+    else if (opcao == "-d")
         descomprimir(entrada, saida);
-    } else {
-        cerr << "Opção inválida. Use -c (compressão) ou -d (descompressão).\n";
-    }
+    else
+        cerr << "Opção inválida. Use -c ou -d.\n";
 
     return 0;
 }
