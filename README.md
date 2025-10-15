@@ -15,4 +15,7 @@
     obs: a tabela foi salva no arquivo frequencia_huffman.txt, em ordem decrescente e contendo apenas os símbolos cuja frequência é maior que 500.
 - huffman.cpp: mapeia os símbolos mais frequentes, de acordo com a tabela, os números narturais e o alfabeto, para códigos binários
   
-  -> O objetico desse arquivo é a compressão e descompressão 
+  -> O objetico desse arquivo é a compressão e a descompressão. Para isso após a compilação do programa, deve-se executá-lo do seguinte modo:
+  
+        ./huffman -c arquivo_entrada arquivo_saida(bin) para a compressão
+        ./huffman -d arquivo_entrada(bin) arquivo_saida para a descompressão
